@@ -1,8 +1,3 @@
-'''
-Created on 15.02.2012
-
-@author: ninja
-'''
 
 import feedparser
 import sqlite3
@@ -49,30 +44,41 @@ def add_to_base():
     j = len(parsed.entries) - 1;
     content = "";
     NamePage = "";
-    print
+    print str(parsed.entries[j].updated)
+    record[1][1]
+    print record[len(record)-1][1]
     while (j >= 0):     
         i = 0;
-        flag = True;
-        while (i < len(record)):
-            if (parsed.entries[j].updated == record[i][1]):
-                    flag = False;
-                    break;
-            i += 1;
+        flag = False;
+        #while (i < len(record)):
+        if (parsed.entries[j].updated > record[len(record)-1][1]):
+            flag = True
+             #       break;
+           # i += 1;
         if flag:
             db.commit()  #glyanytb 4tob He picatb ID
-            cur.execute('insert into RSS (id,Date,Title,Author,Link) VALUES (NULL,"%s","%s","%s","%s")' % (parsed.entries[j].updated,parsed.entries[j].title,parsed.entries[j].author,parsed.entries[j].link))
-            NamePage = "News Feeds from github " + parsed.entries[j].updated[:10];    
-            db.commit()
-            if (parsed.entries[j].updated[:10] == parsed.entries[j-1].updated[:10] and j > 0):
+            cur.execute('insert into RSS (id,Date,Title,Author,Link) VALUES (NULL,"%s","%s","%s","%s\
+            ")' % (parsed.entries[j].updated,parsed.entries[j].title,parsed.entries[j].author,parsed.entries[j].link))
+            NamePage = "News Feeds from gg " + str(parsed.entries[j].updated[:10])
+           
+            server = xmlrpclib.ServerProxy('https://wiki.griddynamics.net/rpc/xmlrpc');
+            tokn = server.confluence1.login(WIKI_USER, WIKI_PASS);
+            try:
+                page = server.confluence1.getPage(tokn, SPACE, NamePage)
+            except:
+                if j == len(parsed.entries) - 1:
+                    k = j
+                else:
+                    k = j + 1
+                NameP = "News Feeds from gg " +str(parsed.entries[k].updated[:10])
+                request(content,NameP)
+                content = ""
                 content += "|" + parsed.entries[j].updated + "|" + parsed.entries[j].title + "|" + parsed.entries[j].author +"| \n"
             else:
-                request(content,NamePage);
-                content = "";
+                if page['content'].count(str(parsed.entries[j].updated)) == 0:
+                    content += "|" + parsed.entries[j].updated + "|" + parsed.entries[j].title + "|" + parsed.entries[j].author +"| \n"    
+            db.commit()
         j -= 1;
-    db.close;
-    return content
-
-#add_to_base();
-
-k = 
-request("gogi","first")
+    request(content,NamePage);    
+    db.close
+add_to_base();
