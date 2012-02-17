@@ -48,8 +48,12 @@ def add_to_base():
         #i = 0;
         flag = False
         ######while (i < len(record)):
-        if (parsed.entries[j].updated > record[len(record)-1][1]):
-            flag = True
+        try:
+            if (parsed.entries[j].updated > record[len(record)-1][1]):
+                flag = True
+        except:
+            pass # non record
+            flag = True        
         ####     #       break;
         ####   # i += 1;
         if flag:
