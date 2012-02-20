@@ -33,32 +33,27 @@ def request(content,NamePage):
 
 def add_to_base():
     parsed = feedparser.parse("https://github.com/organizations/" + org_name + "/" + user_name +".private.atom?token=" + token);
-    #print parsed.entries[-1];
     db = sqlite3.connect('NewsFeedFetcher.db')
     cur = db.cursor()
     cur.execute('create table if not exists RSS (id INTEGER PRIMARY KEY AUTOINCREMENT,Date,Title,Author,Link)')
     db.commit()
     cur.execute('SELECT * FROM RSS')
     record = cur.fetchall()        
-    #print parsed.entries[0].updated;
     j = len(parsed.entries) - 1;
     content = "";
     NamePage = "";
     while (j >= 0):     
-        #i = 0;
         flag = False
-        ######while (i < len(record)):
         try:
             if (parsed.entries[j].updated > record[len(record)-1][1]):
                 flag = True
         except:
             pass # non record
             flag = True        
-        ####     #       break;
-        ####   # i += 1;
         if flag:
             db.commit()  #glyanytb 4tob He picatb ID
-            cur.execute('insert into RSS (id,Date,Title,Author,Link) VALUES (NULL,"%s","%s","%s","%s")' % (parsed.entries[j].updated,parsed.entries[j].title,parsed.entries[j].author,parsed.entries[j].link))
+            cur.execute('insert into RSS (id,Date,Title,Author,Link) VALUES (NULL,"%s","%s","%s\
+            ","%s")' % (parsed.entries[j].updated,parsed.entries[j].title,parsed.entries[j].author,parsed.entries[j].link))
             
             NamePage = "News Feeds from gg " + str(parsed.entries[j].updated[:10])
             server = xmlrpclib.ServerProxy('https://wiki.griddynamics.net/rpc/xmlrpc')
@@ -80,5 +75,13 @@ def add_to_base():
         j -= 1
     request(content,NamePage);    
     db.close
-
-add_to_base();
+db = sqlite3.connect('NewsFeedFetcher.db')    
+c = db.cursor()
+c.execute('SELECT * FROM RSS')
+record = c.fetchall()
+c.execute('SELECT * FROM RSS')
+for row in c:
+    print row
+print
+print record[1][1]
+#add_to_base();
