@@ -44,7 +44,6 @@ def add_to_base():
     content = ""
     NamePage = ""
     while (j >= 0):
-        db.commit()
         cur.execute('SELECT * FROM RSS')
         record = cur.fetchall()
         flag = False
@@ -55,9 +54,7 @@ def add_to_base():
         except:
             flag = True
             id = 0
-        if flag:
-            db.commit()
-            
+        if flag:            
             cur.execute("""insert into RSS (id,Date,Title,Author,Link) VALUES
              (NULL,"%s","%s","%s","%s")""" % (parsed.entries[j].updated, \
             parsed.entries[j].title, parsed.entries[j].author, parsed.entries[j].link))
@@ -84,14 +81,3 @@ def add_to_base():
     request(content, NamePage)
     db.close
 add_to_base()
-#db = sqlite3.connect('NewsFeedFetcher.db')    
-#c = db.cursor()
-#c.execute('SELECT * FROM RSS')
-#record = c.fetchall()
-#c.execute('SELECT * FROM RSS')
-#for row in c:
-#    print row
-#print
-#print record[len(record)-1][0]
-
-
