@@ -43,38 +43,47 @@ def add_to_base():
     j = len(parsed.entries) - 1
     content = ""
     NamePage = ""
+    one = True
+    new = False
     while (j >= 0):
+        db.commit()
         cur.execute('SELECT * FROM RSS')
         record = cur.fetchall()
         flag = False
         try:
-            if (parsed.entries[j].updated > record[len(record) - 1][1]):
-                id = record[len(record)-1][0]
+            if (parsed.entries[j].updated >= record[len(record) - 1][1]):
+                id = record[len(record)-1][0] + 1
                 flag = True
         except:
             flag = True
-            id = 0
-        if flag:            
-            cur.execute("""insert into RSS (id,Date,Title,Author,Link) VALUES
-             (NULL,"%s","%s","%s","%s")""" % (parsed.entries[j].updated, \
-            parsed.entries[j].title, parsed.entries[j].author, parsed.entries[j].link))
-            
-            NamePage = "News Feeds from github " + str(parsed.entries[j].updated[:10])
+            id = 1
+        if flag:          
+            NamePage = "News Feeds from githubbb " + str(parsed.entries[j].updated[:10])
             try:
-                page = server.confluence1.getPage(wiki_token, SPACE, NamePage)
-            except:
-                if j < len(parsed.entries) - 1:
-                    if parsed.entries[j].updated[:10] != parsed.entries[j + 1].updated[:10]:
-                            NameP = "News Feeds from github " + str(parsed.entries[j + 1].updated[:10])
-                            request(content, NameP)
-                            content = ""
-                id += 1            
-                content += "|" + str(id) + "|" + parsed.entries[j].updated + "|" +\
-                             parsed.entries[j].title + "|" + parsed.entries[j].author + "| \n"
+                if (parsed.entries[j].updated[:10] != parsed.entries[j - 1].updated[:10]) or (one):
+                    page = server.confluence1.getPage(wiki_token, SPACE, NamePage)
+                    new = True                   
+            except:    
+                    db.commit()  
+                    cur.execute("""insert into RSS (id,Date,Title,Author,Link) VALUES (NULL,"%s","%s","%s","%s")""" % (parsed.entries[j].updated, parsed.entries[j].title, parsed.entries[j].author, parsed.entries[j].link))                           
+                    content += "|" + str(id) + "|" + parsed.entries[j].updated + "|" +\
+                          parsed.entries[j].title + "|" + parsed.entries[j].author + "| \n"      
+                    if not one: #
+                        request(content, NamePage)
+                        content = ""
+                    one = False    
             else:
-                if page['content'].count(str(parsed.entries[j].updated)) == 0:
-                    id += 1
+                if not new:                   
+                    db.commit()  
+                    cur.execute("""insert into RSS (id,Date,Title,Author,Link) VALUES (NULL,"%s","%s","%s","%s")""" % (parsed.entries[j].updated, parsed.entries[j].title, parsed.entries[j].author, parsed.entries[j].link))                       
                     content += "|" + str(id) + "|" + parsed.entries[j].updated + "|" + \
+                        parsed.entries[j].title + "|" + parsed.entries[j].author + "| \n"
+                else:    
+                    new = False
+                    if page['content'].count(str(parsed.entries[j].updated)) == 0:
+                        db.commit()  
+                        cur.execute("""insert into RSS (id,Date,Title,Author,Link) VALUES (NULL,"%s","%s","%s","%s")""" % (parsed.entries[j].updated, parsed.entries[j].title, parsed.entries[j].author, parsed.entries[j].link))            
+                        content += "|" + str(id) + "|" + parsed.entries[j].updated + "|" + \
                                 parsed.entries[j].title + "|" + parsed.entries[j].author + "| \n"
             db.commit()
         j -= 1
