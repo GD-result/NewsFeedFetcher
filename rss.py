@@ -31,32 +31,31 @@ def request(content, NamePage):
         page['content'] += content
         server.confluence1.updatePage(wiki_token, page, {'versionComment': '', \
                                                          'minorEdit': 1})
-def bbb():
-    return add_to_base.cur    
 
-def update(parsed,j,id_n):
-    add_to_base.cur.execute("""insert into RSS (id,Date,Title,Author,Link) VALUES \
-    (NULL,"%s","%s","%s","%s")""" % (parsed.entries[j].updated, parsed.entries[j].title, parsed.entries[j].author, parsed.entries[j].link))                           
-    add_to_base.content += "|" + str(id_n) + "|" + parsed.entries[j].updated + "|" + parsed.entries[j].title + "|" + parsed.entries[j].author + "| \n"
-    return add_to_base.content
+def update(parsed, j, id_n):
+    add_news.cur.execute("""insert into RSS (id,Date,Title,Author,Link) VALUES \
+    (NULL,"%s","%s","%s","%s")""" % (parsed.entries[j].updated, parsed.entries[j].title, \
+                                     parsed.entries[j].author, parsed.entries[j].link))
+    add_news.content += "|" + str(id_n) + "|" + parsed.entries[j].updated + "|" + \
+    parsed.entries[j].title + "|" + parsed.entries[j].author + "| \n"
 
 
-def add_to_base():
+def add_news():
     parsed = feedparser.parse("https://github.com/organizations/"\
  + org_name + "/" + user_name + ".private.atom?token=" + token)
     db = sqlite3.connect('NewsFeedFetcher.db')
-    add_to_base.cur = db.cursor()
-    add_to_base.cur.execute("""create table if not exists RSS (id INTEGER PRIMARY KEY 
+    add_news.cur = db.cursor()
+    add_news.cur.execute("""create table if not exists RSS (id INTEGER PRIMARY KEY 
     AUTOINCREMENT,Date,Title,Author,Link)""")
-    j = len(parsed.entries) - 25
-    add_to_base.content = ""
+    j = len(parsed.entries) - 1
+    add_news.content = ""
     NamePage = ""
     one = True
     new = False
+    #k = 0
     while (j >= 0):
-        db.commit()
-        add_to_base.cur.execute('SELECT * FROM RSS')
-        record = add_to_base.cur.fetchall()
+        add_news.cur.execute('SELECT * FROM RSS')
+        record = add_news.cur.fetchall()
         flag = False
         try:
             if (parsed.entries[j].updated >= record[len(record) - 1][1]):
@@ -69,13 +68,15 @@ def add_to_base():
             NamePage = "News Feeds from github1233333 " + str(parsed.entries[j].updated[:10])
             try:
                 if (parsed.entries[j].updated[:10] != parsed.entries[j - 1].updated[:10]) or (one):
+                    #k = k+1
                     page = server.confluence1.getPage(wiki_token, SPACE, NamePage)
                     new = True                   
             except:    
-                    update(parsed,j,id_n)      
+                    update(parsed, j, id_n)      
                     if not one:
-                        request(add_to_base.content, NamePage)
-                        add_to_base.content = ""
+                        #k = k+1
+                        request(add_news.content, NamePage)
+                        add_news.content = ""
                     one = False    
             else:
                 if not new:                   
@@ -85,33 +86,14 @@ def add_to_base():
                     new = False
                     one = False
                     if page['content'].count(str(parsed.entries[j].updated)) == 0:
-                        update(parsed,j,id_n)
+                        update(parsed,j, id_n)
             db.commit()
         j -= 1
-    request(add_to_base.content, NamePage)
+    #k = k+1    
+    request(add_news.content, NamePage)
     db.close
-add_to_base()
+#    return k
+add_news()
 
-db = sqlite3.connect('NewsFeedFetcher.db')    
 
-c = db.cursor()
 
-c.execute('SELECT * FROM RSS')
-
-record = c.fetchall()
-
-c.execute('SELECT * FROM RSS')
-
-for row in c:
-
-    print row
-
-print
-parsed = feedparser.parse("https://github.com/organizations/"\
- + org_name + "/" + user_name + ".private.atom?token=" + token)
-i = 1
-for e in parsed.entries:
-    print i,e
-    i +=1
-
-print record[len(record)-1][0]
