@@ -31,52 +31,59 @@ def request(content, NamePage):
         page['content'] += content
         server.confluence1.updatePage(wiki_token, page, {'versionComment': '', \
                                                          'minorEdit': 1})
+        
+
+def update(parsed,j,id_n):
+    add_to_base.cur.execute("""insert into RSS (id,Date,Title,Author,Link) VALUES \
+    (NULL,"%s","%s","%s","%s")""" % (parsed.entries[j].updated, parsed.entries[j].title, parsed.entries[j].author, parsed.entries[j].link))                           
+    add_to_base.content += "|" + str(id_n) + "|" + parsed.entries[j].updated + "|" + parsed.entries[j].title + "|" + parsed.entries[j].author + "| \n"
 
 
 def add_to_base():
     parsed = feedparser.parse("https://github.com/organizations/"\
  + org_name + "/" + user_name + ".private.atom?token=" + token)
     db = sqlite3.connect('NewsFeedFetcher.db')
-    cur = db.cursor()
-    cur.execute("""create table if not exists RSS (id INTEGER PRIMARY KEY 
+    add_to_base.cur = db.cursor()
+    add_to_base.cur.execute("""create table if not exists RSS (id INTEGER PRIMARY KEY 
     AUTOINCREMENT,Date,Title,Author,Link)""")
     j = len(parsed.entries) - 1
-    content = ""
+    add_to_base.content = ""
     NamePage = ""
+    one = True
+    new = False
     while (j >= 0):
-        cur.execute('SELECT * FROM RSS')
-        record = cur.fetchall()
+        db.commit()
+        add_to_base.cur.execute('SELECT * FROM RSS')
+        record = add_to_base.cur.fetchall()
         flag = False
         try:
-            if (parsed.entries[j].updated > record[len(record) - 1][1]):
-                n_id = record[len(record)-1][0]
+            if (parsed.entries[j].updated >= record[len(record) - 1][1]):
+                id_n = record[len(record)-1][0] + 1
                 flag = True
         except:
             flag = True
-            n_id = 0
-        if flag:            
-            cur.execute("""insert into RSS (id,Date,Title,Author,Link) VALUES
-             (NULL,"%s","%s","%s","%s")""" % (parsed.entries[j].updated, \
-            parsed.entries[j].title, parsed.entries[j].author, parsed.entries[j].link))
-            NamePage = "News Feeds from github " + str(parsed.entries[j].updated[:10])
+            id_n = 1
+        if flag:          
+            NamePage = "News Feeds from gith " + str(parsed.entries[j].updated[:10])
             try:
-                page = server.confluence1.getPage(wiki_token, SPACE, NamePage)
-            except:
-                if j < len(parsed.entries) - 1:
-                    if parsed.entries[j].updated[:10] != parsed.entries[j + 1].updated[:10]:
-                            NameP = "News Feeds from github " + str(parsed.entries[j + 1].updated[:10])
-                            request(content, NameP)
-                            content = ""
-                n_id += 1            
-                content += "|" + str(n_id) + "|" + parsed.entries[j].updated + "|" +\
-                             parsed.entries[j].title + "|" + parsed.entries[j].author + "| \n"
+                if (parsed.entries[j].updated[:10] != parsed.entries[j - 1].updated[:10]) or (one):
+                    page = server.confluence1.getPage(wiki_token, SPACE, NamePage)
+                    new = True                   
+            except:    
+                    update(parsed,j,id_n)      
+                    if not one:
+                        request(add_to_base.content, NamePage)
+                        add_to_base.content = ""
+                    one = False    
             else:
-                if page['content'].count(str(parsed.entries[j].updated)) == 0:
-                    n_id += 1
-                    content += "|" + str(n_id) + "|" + parsed.entries[j].updated + "|" + \
-                                parsed.entries[j].title + "|" + parsed.entries[j].author + "| \n"
+                if not new:                   
+                    update(parsed,j,id_n)
+                else:    
+                    new = False
+                    if page['content'].count(str(parsed.entries[j].updated)) == 0:
+                        update(parsed,j,id_n)
             db.commit()
         j -= 1
-    request(content, NamePage)
+    request(add_to_base.content, NamePage)
     db.close
 add_to_base()
