@@ -48,6 +48,7 @@ def add_news():
     add_news.cur = db.cursor()
     add_news.cur.execute("""create table if not exists RSS (id INTEGER PRIMARY KEY 
     AUTOINCREMENT,Date,Title,Author,Link)""")
+    print db.info('ntuples')
     j = len(parsed.entries) - 1
     add_news.content = ""
     NamePage = ""
