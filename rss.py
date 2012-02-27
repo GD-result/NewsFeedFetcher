@@ -15,6 +15,17 @@ class bot:
     wiki_server = xmlrpclib.ServerProxy('https://wiki.griddynamics.net/rpc/xmlrpc')
     token_from_wiki = wiki_server.confluence1.login(WIKI_USER, WIKI_PASS)
     def request(self,content,NamePage,token,server):
+        """
+        request(self,content,NamePage,token,server)
+        This function sends the content to the specified wiki page 
+        and create a new page, if this page does not exist
+        Input:
+            self
+            content - Required unicode
+            NamePage - Required unicode
+            token - Required string
+            server - Required instance
+        """ 
         try:
             page = server.confluence1.getPage(token, SPACE, NamePage)
         except:
