@@ -1,9 +1,3 @@
-'''
-Created on 22.02.2012
-
-@author: ninja
-'''
-
 import feedparser
 import sqlite3
 import xmlrpclib
@@ -25,7 +19,7 @@ class bot:
             page = server.confluence1.getPage(token, SPACE, NamePage);
         except:
             parent = server.confluence1.getPage(token, SPACE, TOP_PAGE);
-            table_headers = "h1. News Feed \n ||id||date||title||author||\n" 
+            table_headers = "h1. News Feed (UTC) \n ||id||date||title||author||\n" 
             page={
                   'parentId': parent['id'],
                   'space': SPACE,
@@ -38,7 +32,7 @@ class bot:
             server.confluence1.updatePage(token, page,{'versionComment':'','minorEdit':1});
     def get_last_page(self,token,server):
         try:
-            geted_page = server.confluence1.search(token,"News Feedsss from github",{"modified" : "LASTWEEK"},100)
+            geted_page = server.confluence1.search(token,"News Feeds from githubbb",{"modified" : "LASTWEEK"},100)
             i = 1;
             number = 0;
             value = geted_page[0]['id'];
@@ -47,7 +41,7 @@ class bot:
                     number = i;
                     value = geted_page[i]['id']; 
                 i += 1;
-            LastDate = geted_page[number]['title'][25:];
+            LastDate = geted_page[number]['title'][25:]  # get Date in NamePage 
             NamePage = "News Feedsss from github " + LastDate;
             page = server.confluence1.getPage(token, SPACE, NamePage);
             return str(page);
@@ -58,7 +52,7 @@ class bot:
         db = sqlite3.connect('NewsFeedFetcher.db')
         cur = db.cursor()
         cur.execute('create table if not exists RSS (id INTEGER PRIMARY KEY AUTOINCREMENT,Date,Title,Author,Link)')
-        cur.execute('SELECT * FROM RSS')
+        cur.execute('SELECT id,Date FROM RSS')
         record = cur.fetchall();      
         j = len(parsed.entries) - 1;
         k = j;
@@ -74,7 +68,7 @@ class bot:
                         position = k;
                     k -= 1;
                 if (position > 0):
-                    k = position-1;
+                    k = position - 1;
                 else:
                     k = -1;  
             else:
@@ -89,9 +83,9 @@ class bot:
                 cur.execute('insert into RSS (id,Date,Title,Author,Link) VALUES (NULL,"%s","%s","%s","%s")' % (parsed.entries[j].updated,parsed.entries[j].title,parsed.entries[j].author,parsed.entries[j].link))    
                 db.commit()   
                 if (k >= 0):
-                    NamePage = "News Feedsss from github " + parsed.entries[k].updated[:10];
+                    NamePage = "News Feeds from githubbb " + parsed.entries[k].updated[:10];  # [:10] Date without time YYYY-MM-DD
                     id_from_base += 1;
-                    if (parsed.entries[k].updated[:10] == parsed.entries[k-1].updated[:10] and k > 0):
+                    if (parsed.entries[k].updated[:10] == parsed.entries[k-1].updated[:10] and k > 0):  # [:10] Date without time YYYY-MM-DD
                         content += "|" + str(id_from_base) + "|" + parsed.entries[k].updated + "|" + parsed.entries[k].title + "|" + parsed.entries[k].author +"| \n"
                     else:
                         content += "|" + str(id_from_base) + "|" + parsed.entries[k].updated + "|" + parsed.entries[k].title + "|" + parsed.entries[k].author +"| \n"
@@ -105,13 +99,13 @@ class bot:
         cur = db.cursor()
         cur.execute('create table if not exists RSS (id INTEGER PRIMARY KEY AUTOINCREMENT,Date,Title,Author,Link)')
         cur.execute('SELECT * FROM RSS')
-        record = cur.fetchall();  #ubrat'?
-        db.commit();
+        db.commit()
         db.close;
-        for k in record:  #in cur ?
+        for k in cur:
             print k
         
 
-bot = bot();
-bot.print_base();
-print bot.get_last_page(bot.token_from_wiki, bot.wiki_server)
+bot = bot()
+#print bot.get_last_page(bot.token_from_wiki, bot.wiki_server)
+bot.add_news()
+bot.print_base()
