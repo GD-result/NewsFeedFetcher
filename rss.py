@@ -16,11 +16,10 @@ class bot:
     token_from_wiki = wiki_server.confluence1.login(WIKI_USER, WIKI_PASS)
     def request(self,content,NamePage,token,server):
         """
-        request(self,content,NamePage,token,server)
+        request(content,NamePage,token,server)
         This function sends the content to the specified wiki page 
         and create a new page, if this page does not exist
         Input:
-            self
             content - Required unicode
             NamePage - Required unicode
             token - Required string
@@ -42,6 +41,13 @@ class bot:
             page['content'] += content
             server.confluence1.updatePage(token, page,{'versionComment':'','minorEdit':1})
     def get_last_page(self,token,server):
+        """
+        get_last_page(token,server)
+        This function returns the last added page from wiki or null if the page does not exists
+        Input:
+            token - Required string
+            server - Required instance
+        """
         try:
             geted_page = server.confluence1.search(token,"News Feeds from githubrr",{"modified" : "LASTWEEK"},100)
             i = 1
@@ -52,13 +58,17 @@ class bot:
                     number = i
                     value = geted_page[i]['id'] 
                 i += 1
-            LastDate = geted_page[number]['title'][25:]  # get Date in NamePage 
+            LastDate = geted_page[number]['title'][25:]  # get Date in NamePage, must be changed when you change NamePage 
             NamePage = "News Feeds from githubrr " + LastDate
             page = server.confluence1.getPage(token, SPACE, NamePage)
             return str(page)
         except:
             return "NULL"
     def add_news(self):
+        """
+        add_news()
+        This function parse the news and forms the data base. The main function.
+        """
         parsed = feedparser.parse("https://github.com/organizations/" + org_name + "/" + user_name +".private.atom?token=" + token)
         db = sqlite3.connect('NewsFeedFetcher.db')
         cur = db.cursor()
@@ -93,15 +103,18 @@ class bot:
         NamePage = ""    
         while (j >= 0):  
             if (parsed.entries[j].updated > last_date_from_db):
-                cur.execute('insert into RSS (id,Date,Title,Author,Link) VALUES (NULL,"%s","%s","%s","%s")' % (parsed.entries[j].updated,parsed.entries[j].title,parsed.entries[j].author,parsed.entries[j].link))    
+                cur.execute('insert into RSS (id,Date,Title,Author,Link) VALUES (NULL,"%s","%s","%s","%s")'\
+                 % (parsed.entries[j].updated,parsed.entries[j].title,parsed.entries[j].author,parsed.entries[j].link))    
                 db.commit()   
                 if (k >= 0):
                     NamePage = "News Feeds from githubrr " + parsed.entries[k].updated[:10]  # [:10] Date without time YYYY-MM-DD
                     id_from_db += 1
                     if (parsed.entries[k].updated[:10] == parsed.entries[k-1].updated[:10] and k > 0):  # [:10] Date without time YYYY-MM-DD
-                        content += "|" + str(id_from_db) + "|" + parsed.entries[k].updated + "|" + parsed.entries[k].title + "|" + parsed.entries[k].author +"| \n"
+                        content += "|" + str(id_from_db) + "|" + parsed.entries[k].updated + "|" \
+                        + parsed.entries[k].title + "|" + parsed.entries[k].author +"| \n"
                     else:
-                        content += "|" + str(id_from_db) + "|" + parsed.entries[k].updated + "|" + parsed.entries[k].title + "|" + parsed.entries[k].author +"| \n"
+                        content += "|" + str(id_from_db) + "|" + parsed.entries[k].updated + "|" \
+                        + parsed.entries[k].title + "|" + parsed.entries[k].author +"| \n"
                         self.request(content,NamePage,self.token_from_wiki, self.wiki_server)
                         content = ""
             j -= 1
