@@ -9,6 +9,7 @@ from conf import WIKI_PASS
 from conf import token
 from conf import org_name
 from conf import user_name
+from conf import page_name
 
 
 class bot:
@@ -49,7 +50,7 @@ class bot:
             server - Required instance
         """
         try:
-            geted_page = server.confluence1.search(token,"News Feeds from githubrr",{"modified" : "LASTWEEK"},100)
+            geted_page = server.confluence1.search(token,page_name,{"modified" : "LASTWEEK"},100)
             i = 1
             number = 0
             value = geted_page[0]['id']
@@ -58,8 +59,8 @@ class bot:
                     number = i
                     value = geted_page[i]['id'] 
                 i += 1
-            LastDate = geted_page[number]['title'][25:]  # get Date in NamePage, must be changed when you change NamePage 
-            NamePage = "News Feeds from githubrr " + LastDate
+            LastDate = geted_page[number]['title'][len(page_name) + 1:]  # get Date in NamePage, must be changed when you change NamePage
+            NamePage = page_name + " " + LastDate
             page = server.confluence1.getPage(token, SPACE, NamePage)
             return str(page)
         except:
@@ -75,7 +76,7 @@ class bot:
         cur.execute('create table if not exists RSS (id INTEGER PRIMARY KEY AUTOINCREMENT,Date,Title,Author,Link)')
         cur.execute('SELECT max(id),Date FROM RSS')
         record = cur.fetchall()
-        #print record[0][0], record[0][1]      
+        cur.fetchall()
         j = len(parsed.entries) - 1
         k = j
         last_date_from_db = ""
@@ -86,7 +87,6 @@ class bot:
             #print page_to_string 
             if (page_to_string != "NULL"):
                 while (k >= 0): 
-                    #print page_to_string.count(parsed.entries[k].updated)," ", parsed.entries[k].updated
                     if (page_to_string.count(parsed.entries[k].updated) != 0):
                         position = k
                     k -= 1
@@ -107,7 +107,7 @@ class bot:
                  % (parsed.entries[j].updated,parsed.entries[j].title,parsed.entries[j].author,parsed.entries[j].link))    
                 db.commit()   
                 if (k >= 0):
-                    NamePage = "News Feeds from githubrr " + parsed.entries[k].updated[:10]  # [:10] Date without time YYYY-MM-DD
+                    NamePage = page_name + " " + parsed.entries[k].updated[:10]  # [:10] Date without time YYYY-MM-DD
                     id_from_db += 1
                     if (parsed.entries[k].updated[:10] == parsed.entries[k-1].updated[:10] and k > 0):  # [:10] Date without time YYYY-MM-DD
                         content += "|" + str(id_from_db) + "|" + parsed.entries[k].updated + "|" \
