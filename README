@@ -1,6 +1,4 @@
-RSS News
-
-the main file is rss.py
+Send RSS News to wiki
 
 Needs conf.py file which contains variables:
 
@@ -8,7 +6,7 @@ Needs conf.py file which contains variables:
 	SPACE - Space on wiki. String
 	WIKI_USER - Your wiki username. String
 	WIKI_PASS - Your wiki password. String
-	page_name - Base name of pages with news (without date). String
+	title - Base name of pages with news (without date). String
 	org_name - Organization name on github. String
 	user_name - Your github login. String
 	token - Your github token. String 
