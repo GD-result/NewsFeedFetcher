@@ -141,5 +141,5 @@ class bot:
 
 bot = bot()
 #print bot.get_last_page(bot.wiki_token, bot.wiki_server)
-bot.add_news()
+#bot.add_news()
 #bot.print_base()
