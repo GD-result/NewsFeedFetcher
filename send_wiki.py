@@ -13,6 +13,8 @@ from conf import events_list
 class bot:
     wiki_server = xmlrpclib.ServerProxy('https://wiki.griddynamics.net/rpc/xmlrpc')
     wiki_token = wiki_server.confluence1.login(WIKI_USER, WIKI_PASS)
+    
+    
     def request(self, content, name_page, wiki_token, wiki_server):
         """
         request(content, name_page, wiki_token, wiki_server)
@@ -29,7 +31,7 @@ class bot:
         except:
             parent = wiki_server.confluence1.getPage(wiki_token, SPACE, TOP_PAGE)
             table_headers = "h1. News Feed (UTC) \n ||id||Date||Author||Event Type||\n"
-            page={
+            page = {
                   'parentId': parent['id'],
                   'space': SPACE,
                   'title': name_page,
@@ -38,8 +40,10 @@ class bot:
             wiki_server.confluence1.storePage(wiki_token, page)
         else:
             page['content'] += content
-            wiki_server.confluence1.updatePage(wiki_token, page,{'versionComment':'','minorEdit':1})
-    def get_last_page(self,wiki_token, wiki_server):
+            wiki_server.confluence1.updatePage(wiki_token, page, {'versionComment':'','minorEdit':1})
+            
+            
+    def get_last_page(self, wiki_token, wiki_server):
         """
         get_last_page(wiki_token,wiki_server)
         This function returns the last added page from wiki or null if the page does not exists
@@ -48,7 +52,7 @@ class bot:
         wiki_server - Required instance
         """
         try:
-            geted_page = wiki_server.confluence1.search(wiki_token,title,{"modified" : "LASTWEEK"},100)
+            geted_page = wiki_server.confluence1.search(wiki_token, title, {"modified" : "LASTWEEK"}, 100)
             i = 1
             number = 0
             value = geted_page[0]['id']
@@ -63,6 +67,8 @@ class bot:
             return str(page)
         except:
             return None
+        
+        
     def add_news(self):
         """
         add_news()

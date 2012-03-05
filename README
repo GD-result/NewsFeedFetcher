@@ -14,7 +14,7 @@ Needs conf.py file which contains variables:
 	use_token - Authorization type. Boolean (True if you use oAuth token, False if you use login/password)
 	db_name - Data base name. String
 	events_list - Events list. Dictionary (value = True if you want to see it on wiki, else False)
-		Events types:
+		Events types (key):
 			CommitCommentEvent
 			CreateEvent
 			DeleteEvent

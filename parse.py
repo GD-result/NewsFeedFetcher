@@ -50,14 +50,11 @@ def add_news():
     else:
         last_date_from_db = record[0][1]
     count = 0
-    #print news[0]
     while (count < len(news) and news[count]['created_at'] > last_date_from_db):
         count += 1
-        #print "ololo"
     count -= 1
     while (count >= 0):
         summary = json.dumps(news[count])
-        #print news[count]
         cur.execute('insert into RSS (id, Date, Author, EventType, Summary) VALUES (NULL,"%s","%s","%s","%s")'\
         % (news[count]['created_at'], news[count]['actor']['login'], news[count]['type'], base64.b64encode(summary)))
         db.commit()  
@@ -88,4 +85,4 @@ def print_base():
         
 
 add_news()
-print_base()      
+#print_base()      
