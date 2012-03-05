@@ -83,7 +83,7 @@ class bot:
         else:
             page_to_string = page_to_string.split("|")
             last_id = int(page_to_string[len(page_to_string) - 5])  # Search last id in table from wiki page
-        cur.execute('SELECT * FROM RSS WHERE id > %d'%last_id)
+        cur.execute('SELECT * FROM RSS WHERE id > %d' % last_id)
         news = cur.fetchall()
         if not news == []:
             content = ""
@@ -97,6 +97,8 @@ class bot:
                     content += "|" + str(last_id) + "|" + item[1] + "|" + item[2] + "|" + item[3] + "| \n"
                     name_page = title + " " + item[1][:10] # [:10] Date without time YYYY-MM-DD
             self.request(content, name_page, self.wiki_token, self.wiki_server)
+        else:
+            print "Error. Data base %s is empty" % db_name
         db.close       
 
 bot = bot()
