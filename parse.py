@@ -11,6 +11,11 @@ from conf import oauth_token
 
 
 def get_news():
+    """
+    get_news()
+    
+    This function get news from github and send it to add_news() function
+    """
     events_url = "https://api.github.com/users/%s/events/orgs/%s" % (github_login, org_name)
     auth_type = ""
     if use_token:
@@ -22,6 +27,11 @@ def get_news():
     
     
 def add_news():
+    """
+    add_news()
+    
+    This function get news array and forms the data base. The main function.
+    """
     r = get_news()
     if (r.status_code == requests.codes.OK):
         news = json.loads(r.content)
@@ -34,7 +44,7 @@ def add_news():
     cur.execute('SELECT max(id),Date FROM RSS')
     record = cur.fetchall()
     cur.fetchall()
-    if  (record[0][0] == None): 
+    if  (not record[0][0]): 
         last_date_from_db = ""
     else:
         last_date_from_db = record[0][1]
@@ -59,7 +69,7 @@ def print_base():
     print base()
     
     Use this function to print all data base in console
-    Test function
+    Test function (example)
     """  
     db = sqlite3.connect('NewsFeed.db')
     cur = db.cursor()
@@ -71,10 +81,10 @@ def print_base():
     for i in range(len(rec)):
         n = base64.b64decode(rec[i][4])
         print rec[i][0], rec[i][1], rec[i][2], rec[i][3], n
-        print json.loads(n)
+        #print json.loads(n)
 #    for elem in cur:
 #        print elem
         
 
 add_news()
-#print_base()      
+print_base()      

@@ -1,4 +1,4 @@
-Send RSS News to wiki
+Send Github News to wiki
 
 Needs conf.py file which contains variables:
 
@@ -8,5 +8,7 @@ Needs conf.py file which contains variables:
 	WIKI_PASS - Your wiki password. String
 	title - Base name of pages with news (without date). String
 	org_name - Organization name on github. String
-	user_name - Your github login. String
-	token - Your github token. String 
+	github_login - Your github login. String
+	github_pass - Your github password. String
+	oauth_token - Your github oAuth token (scope: repo). String
+	use_token - Authorization type. Boolean (True if you use oAuth token, False if you use login/password)
