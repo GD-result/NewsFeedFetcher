@@ -15,15 +15,15 @@ Needs conf.py file which contains variables:
 	db_name - Data base name. String
 	events_list - Events list. Dictionary (value = True if you want to see it on wiki, else False)
 		Events types:
-			CommitComment
-    		CreateEvent
-    		DeleteEvent
-    		DownloadEvent
-    		FollowEvent
-    		ForkEvent
-    		ForkApplyEvent
-    		GistEvent
-    		GollumEvent
+			CommitCommentEvent
+			CreateEvent
+			DeleteEvent
+			DownloadEvent
+			FollowEvent
+			ForkEvent
+			ForkApplyEvent
+			GistEvent
+			GollumEvent
 			IssueCommentEvent
 			IssuesEvent
 			MemberEvent
@@ -32,4 +32,3 @@ Needs conf.py file which contains variables:
 			PushEvent
 			TeamAddEvent
 			WatchEvent
-			
