@@ -7,6 +7,7 @@ from conf import WIKI_USER
 from conf import WIKI_PASS
 from conf import title
 from conf import db_name
+from conf import events_list
 
 
 class bot:
@@ -85,9 +86,10 @@ class bot:
                 if not item[1][:10] == news[i - 1][1][:10]: # [:10] Date without time YYYY-MM-DD
                     self.request(content, name_page, self.wiki_token, self.wiki_server)
                     content = ""
-                name_page = title + " " + item[1][:10] # [:10] Date without time YYYY-MM-DD
                 last_id += 1
-                content += "|" + str(last_id) + "|" + item[1] + "|" + item[2] + "|" + item[3] + "| \n"
+                if events_list[str(item[3])]:
+                    content += "|" + str(last_id) + "|" + item[1] + "|" + item[2] + "|" + item[3] + "| \n"
+                    name_page = title + " " + item[1][:10] # [:10] Date without time YYYY-MM-DD
             self.request(content, name_page, self.wiki_token, self.wiki_server)
         db.close       
 

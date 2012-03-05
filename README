@@ -13,3 +13,23 @@ Needs conf.py file which contains variables:
 	oauth_token - Your github oAuth token (scope: repo). String
 	use_token - Authorization type. Boolean (True if you use oAuth token, False if you use login/password)
 	db_name - Data base name. String
+	events_list - Events list. Dictionary (value = True if you want to see it on wiki, else False)
+		Events types:
+			CommitComment
+    		CreateEvent
+    		DeleteEvent
+    		DownloadEvent
+    		FollowEvent
+    		ForkEvent
+    		ForkApplyEvent
+    		GistEvent
+    		GollumEvent
+			IssueCommentEvent
+			IssuesEvent
+			MemberEvent
+			PublicEvent
+			PullRequestEvent
+			PushEvent
+			TeamAddEvent
+			WatchEvent
+			
