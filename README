@@ -12,3 +12,4 @@ Needs conf.py file which contains variables:
 	github_pass - Your github password. String
 	oauth_token - Your github oAuth token (scope: repo). String
 	use_token - Authorization type. Boolean (True if you use oAuth token, False if you use login/password)
+	db_name - Data base name. String

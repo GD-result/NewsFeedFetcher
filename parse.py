@@ -8,6 +8,7 @@ from conf import github_pass
 from conf import org_name
 from conf import use_token
 from conf import oauth_token
+from conf import db_name
 
 
 def get_news():
@@ -38,7 +39,7 @@ def add_news():
     else:
         print r.headers
         return -1    
-    db = sqlite3.connect('NewsFeed.db')
+    db = sqlite3.connect(db_name)
     cur = db.cursor()
     cur.execute('create table if not exists RSS (id INTEGER PRIMARY KEY AUTOINCREMENT, Date, Author, EventType, Summary TEXT)')
     cur.execute('SELECT max(id),Date FROM RSS')
@@ -71,7 +72,7 @@ def print_base():
     Use this function to print all data base in console
     Test function (example)
     """  
-    db = sqlite3.connect('NewsFeed.db')
+    db = sqlite3.connect(db_name)
     cur = db.cursor()
     cur.execute('create table if not exists RSS (id INTEGER PRIMARY KEY AUTOINCREMENT,Date,Title,Author,Link,Summary)')
     cur.execute('SELECT * FROM RSS')

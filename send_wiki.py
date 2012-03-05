@@ -6,6 +6,7 @@ from conf import TOP_PAGE
 from conf import WIKI_USER
 from conf import WIKI_PASS
 from conf import title
+from conf import db_name
 
 
 class bot:
@@ -66,7 +67,7 @@ class bot:
         add_news()
         The main function. 
         """
-        db = sqlite3.connect('NewsFeed.db')
+        db = sqlite3.connect(db_name)
         cur = db.cursor()
         cur.execute('create table if not exists RSS (id INTEGER PRIMARY KEY AUTOINCREMENT, Date, Author, EventType, Summary TEXT)')
         page_to_string = self.get_last_page(self.wiki_token, self.wiki_server)
