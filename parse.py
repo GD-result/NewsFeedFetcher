@@ -11,11 +11,22 @@ from conf import oauth_token
 from conf import db_name
 
 
+def read_file():
+    value = ""
+    try:
+        f = open("github.lock","r")
+        value = f.readlines()[0]
+        f.close()
+    except:
+        pass
+    return value
+
+
 def get_news():
     """
     get_news()
     
-    This function get news from github and send it to add_news() function
+    This function get news from github and send it to add_to_base() function
     """
     events_url = "https://api.github.com/users/%s/events/orgs/%s" % (github_login, org_name)
     auth_type = ""
@@ -27,9 +38,9 @@ def get_news():
     return r
     
     
-def add_news():
+def add_to_base():
     """
-    add_news()
+    add_to_base()
     
     This function get news array and forms the database. The main function.
     """
@@ -83,6 +94,12 @@ def print_base():
 #    for elem in cur:
 #        print elem
         
-
-add_news()
-#print_base()      
+if read_file().strip() == "free":
+    f = open("github.lock","w+")
+    f.write("busy")
+    f.close()
+    add_to_base()
+    #print_base()
+f = open("github.lock","w+")
+f.write("free")
+f.close()

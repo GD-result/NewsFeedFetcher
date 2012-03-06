@@ -9,6 +9,16 @@ from conf import title
 from conf import db_name
 from conf import events_list
 
+def read_file():
+    value = ""
+    try:
+        f = open("github.lock","r")
+        value = f.readlines()[0]
+        f.close()
+    except:
+        pass
+    return value
+
 
 class bot:
     wiki_server = xmlrpclib.ServerProxy('https://wiki.griddynamics.net/rpc/xmlrpc')
@@ -103,5 +113,12 @@ class bot:
             self.request(content, name_page, self.wiki_token, self.wiki_server)
         db.close       
 
-bot = bot()
-bot.add_news()
+if read_file().strip() == "free":
+    f = open("github.lock","w+")
+    f.write("busy")
+    f.close()
+    bot = bot()
+    bot.add_news()
+f = open("github.lock","w+")
+f.write("free")
+f.close()
