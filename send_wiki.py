@@ -52,7 +52,7 @@ class bot:
         wiki_server - Required instance
         """
         try:
-            geted_page = wiki_server.confluence1.search(wiki_token, title, {"modified" : "LASTWEEK"}, 100)
+            geted_page = wiki_server.confluence1.search(wiki_token, title, {"modified" : "LASTMONTH"}, 100)
             i = 1
             number = 0
             value = geted_page[0]['id']
