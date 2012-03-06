@@ -31,7 +31,7 @@ def add_news():
     """
     add_news()
     
-    This function get news array and forms the data base. The main function.
+    This function get news array and forms the database. The main function.
     """
     r = get_news()
     if (r.status_code == requests.codes.OK):
@@ -66,7 +66,7 @@ def print_base():
     """
     print base()
     
-    Use this function to print all data base in console
+    Use this function to print all database in console
     Test function (example)
     """  
     db = sqlite3.connect(db_name)

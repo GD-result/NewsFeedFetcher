@@ -76,7 +76,11 @@ class bot:
         """
         db = sqlite3.connect(db_name)
         cur = db.cursor()
-        cur.execute('create table if not exists RSS (id INTEGER PRIMARY KEY AUTOINCREMENT, Date, Author, EventType, Summary TEXT)')
+        cur.execute('create table if not exists RSS (Test)')
+        cur.execute('SELECT * FROM RSS')
+        if cur.fetchall() == []:
+            print "Error. Database %s is empty" % db_name
+            return
         page_to_string = self.get_last_page(self.wiki_token, self.wiki_server)
         if not page_to_string:
             last_id = 0
@@ -97,8 +101,6 @@ class bot:
                     content += "|" + str(last_id) + "|" + item[1] + "|" + item[2] + "|" + item[3] + "| \n"
                     name_page = title + " " + item[1][:10] # [:10] Date without time YYYY-MM-DD
             self.request(content, name_page, self.wiki_token, self.wiki_server)
-        else:
-            print "Error. Data base %s is empty" % db_name
         db.close       
 
 bot = bot()
