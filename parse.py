@@ -55,7 +55,6 @@ def add_to_base():
     cur.execute('create table if not exists RSS (id INTEGER PRIMARY KEY AUTOINCREMENT, Date, Author, EventType, Summary TEXT)')
     cur.execute('SELECT max(id),Date FROM RSS')
     record = cur.fetchall()
-    cur.fetchall()
     if  (not record[0][0]): 
         last_date_from_db = ""
     else:
@@ -63,13 +62,12 @@ def add_to_base():
     count = 0
     while (count < len(news) and news[count]['created_at'] > last_date_from_db):
         count += 1
-    count -= 1
-    while (count >= 0):
+    while (count > 0):
+        count -= 1
         summary = json.dumps(news[count])
         cur.execute('insert into RSS (id, Date, Author, EventType, Summary) VALUES (NULL,"%s","%s","%s","%s")'\
-        % (news[count]['created_at'], news[count]['actor']['login'], news[count]['type'], base64.b64encode(summary)))
-        db.commit()  
-        count -= 1
+        % (news[count]['created_at'], news[count]['actor']['login'], news[count]['type'], base64.b64encode(summary)))        
+    db.commit()
     db.close 
 
     

@@ -8,6 +8,7 @@ from conf import WIKI_PASS
 from conf import title
 from conf import db_name
 from conf import events_list
+from conf import wiki_url
 
 def read_file():
     value = ""
@@ -21,7 +22,7 @@ def read_file():
 
 
 class bot:
-    wiki_server = xmlrpclib.ServerProxy('https://wiki.griddynamics.net/rpc/xmlrpc')
+    wiki_server = xmlrpclib.ServerProxy(wiki_url)
     wiki_token = wiki_server.confluence1.login(WIKI_USER, WIKI_PASS)
     
     
@@ -107,7 +108,7 @@ class bot:
                     self.request(content, name_page, self.wiki_token, self.wiki_server)
                     content = ""
                 last_id += 1
-                if events_list[str(item[3])]:
+                if events_list[str(item[3])]:  # News filter
                     content += "|" + str(last_id) + "|" + item[1] + "|" + item[2] + "|" + item[3] + "| \n"
                     name_page = title + " " + item[1][:10] # [:10] Date without time YYYY-MM-DD
             self.request(content, name_page, self.wiki_token, self.wiki_server)
