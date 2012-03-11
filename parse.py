@@ -1,7 +1,6 @@
 import requests
 import json
 import sqlite3
-import base64
 
 from conf import github_login
 from conf import github_pass
@@ -49,11 +48,12 @@ def add_to_base():
         news = json.loads(r.content)
     else:
         print r.headers
-        return -1    
-    db = sqlite3.connect(db_name)
+        return -1
+    sqlite3.register_converter("json", json.loads)
+    db = sqlite3.connect(db_name, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
     cur = db.cursor()
-    cur.execute('create table if not exists RSS (id INTEGER PRIMARY KEY AUTOINCREMENT, Date, Author, EventType, Summary TEXT)')
-    cur.execute('SELECT max(id),Date FROM RSS')
+    cur.execute('''create table if not exists RSS (id INTEGER PRIMARY KEY AUTOINCREMENT, Date, Author, EventType, Summary json)''')
+    cur.execute('''SELECT max(id),Date FROM RSS''')
     record = cur.fetchall()
     if  (not record[0][0]): 
         last_date_from_db = ""
@@ -65,8 +65,8 @@ def add_to_base():
     while (count > 0):
         count -= 1
         summary = json.dumps(news[count])
-        cur.execute('insert into RSS (id, Date, Author, EventType, Summary) VALUES (NULL,"%s","%s","%s","%s")'\
-        % (news[count]['created_at'], news[count]['actor']['login'], news[count]['type'], base64.b64encode(summary)))        
+        cur.execute('''insert into RSS (id, Date, Author, EventType, Summary) VALUES (NULL,?,?,?,?)'''\
+        , (news[count]['created_at'], news[count]['actor']['login'], news[count]['type'], summary))        
     db.commit()
     db.close 
 
@@ -80,15 +80,15 @@ def print_base():
     """  
     db = sqlite3.connect(db_name)
     cur = db.cursor()
-    cur.execute('create table if not exists RSS (id INTEGER PRIMARY KEY AUTOINCREMENT,Date,Title,Author,Link,Summary)')
+    cur.execute('create table if not exists RSS (id INTEGER PRIMARY KEY AUTOINCREMENT,Date,Title,Author,Link,Summary json)')
     cur.execute('SELECT * FROM RSS')
     db.commit()
     db.close
     rec = cur.fetchall()
     for i in range(len(rec)):
-        n = base64.b64decode(rec[i][4])
-        print rec[i][0], rec[i][1], rec[i][2], rec[i][3], n
-        #print json.loads(n)
+        n = rec[i][4]
+        print rec[i][0], rec[i][1], rec[i][2], rec[i][3], json.loads(n)
+        #print json.loads(n)['actor']['login']
 #    for elem in cur:
 #        print elem
         
